@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.1
+- Maintenance release — verifies the in-app update flow end to end. No feature changes.
+
 ## 1.0
 - First release of Deck — a local, native macOS tracker for your projects' bugs, features, and ideas.
 - Dashboard of project cards grouped by category, each with live pending/done and bug/feature counts.
