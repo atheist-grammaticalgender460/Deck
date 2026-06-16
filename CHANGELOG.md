@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.9
+- Settings now show just the version number (e.g. 1.0.9), without the internal build number in parentheses.
+
 ## 1.0.8
 - The editor font and size are now truly locked — pasted text (even tiny or monospace fonts) is always shown in the one body font, and opening older notes corrects them too. Your bold/italic is kept.
 
