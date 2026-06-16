@@ -317,6 +317,21 @@ final class DeckTextView: NSTextView {
         didChangeText()
     }
 
+    override func deleteBackward(_ sender: Any?) {
+        let sel = selectedRange()
+        if sel.length == 0 {
+            let para = currentParagraphRange()
+            let markerLen = (Self.bulletMarker as NSString).length
+            // Caret sits right in front of the words (just after "•\t"): one press
+            // removes the whole marker — outdent a tier, or leave the list at tier 0.
+            if isBulletParagraph(para), sel.location == para.location + markerLen {
+                if tier(of: para) > 0 { adjustBulletTier(by: -1) } else { removeBullet(in: para) }
+                return
+            }
+        }
+        super.deleteBackward(sender)
+    }
+
     /// If the caret follows a lone "-" at the start of a line, replace it with a
     /// bullet and consume the triggering space. Returns true if it handled it.
     private func convertDashToBulletIfNeeded() -> Bool {

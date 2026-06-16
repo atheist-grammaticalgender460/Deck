@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.6
+- Deleting a bullet is now one press: with the cursor in front of the words, Delete removes the whole bullet (outdenting a nested one a tier at a time) instead of first deleting just the indent and then the dot.
+
 ## 1.0.5
 - Type "- " (dash + space) at the start of a line to begin a bullet list, just like Apple Notes.
 - Bullet lists now support tiers — press Tab to nest a bullet deeper and Shift+Tab to move it back out.
