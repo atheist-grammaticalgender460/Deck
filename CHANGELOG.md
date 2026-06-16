@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.4
+- Pasted text now actually shrinks to the editor's normal body size — big headings and large fonts copied from Apple Notes no longer come in oversized. (The previous clean-paste fix wasn't being applied to the pasted range.)
+
 ## 1.0.3
 - Paste is now always clean: every paste strips incoming colors and formatting and uses the editor's own readable style (like Paste and Match Style), so text from Apple Notes is never black or unreadable. Inline images are still kept.
 - Fixed the bug where, after pasting, new typing stayed black even after deleting everything — the typing style is now reset after each paste.

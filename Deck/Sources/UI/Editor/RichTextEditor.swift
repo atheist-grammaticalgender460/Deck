@@ -144,11 +144,16 @@ struct RichTextEditor: NSViewRepresentable {
 /// new typing — including after you delete everything — is always readable.
 final class DeckTextView: NSTextView {
     override func paste(_ sender: Any?) {
-        let start = selectedRange().location
+        guard let storage = textStorage else { super.paste(sender); return }
+        // Measure what got inserted by the change in document length — after paste,
+        // NSTextView leaves the new text *selected at the original caret*, so we can't
+        // rely on the selection moving forward to find the inserted range.
+        let before = selectedRange()
+        let lengthBefore = storage.length
         super.paste(sender)
-        let end = selectedRange().location
-        if end > start {
-            normalizeToPlain(in: NSRange(location: start, length: end - start))
+        let inserted = storage.length - lengthBefore + before.length
+        if inserted > 0 {
+            normalizeToPlain(in: NSRange(location: before.location, length: inserted))
             didChangeText()
         }
         typingAttributes = defaultTypingAttributes()
