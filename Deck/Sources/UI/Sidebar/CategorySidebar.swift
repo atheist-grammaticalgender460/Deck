@@ -34,16 +34,17 @@ struct CategorySidebar: View {
             .listRowSeparator(.hidden)
 
             Section("Categories") {
+                // Tap-gesture rows (not Buttons) so List's drag-to-reorder isn't
+                // intercepted — drag a category to reorder, Apple-Notes style.
                 ForEach(categories) { category in
-                    Button { onSelect(.category(category)) } label: {
-                        SidebarRow(title: category.name, systemImage: "folder.fill",
-                                   iconColor: category.theme.color, accent: category.theme.color,
-                                   count: category.projects.count, active: isActive(.category(category)))
-                    }
-                    .buttonStyle(.plain)
-                    .listRowInsets(rowInsets)
-                    .listRowSeparator(.hidden)
-                    .contextMenu { contextMenu(for: category) }
+                    SidebarRow(title: category.name, systemImage: "folder.fill",
+                               iconColor: category.theme.color, accent: category.theme.color,
+                               count: category.projects.count, active: isActive(.category(category)))
+                        .contentShape(Rectangle())
+                        .onTapGesture { onSelect(.category(category)) }
+                        .listRowInsets(rowInsets)
+                        .listRowSeparator(.hidden)
+                        .contextMenu { contextMenu(for: category) }
                 }
                 .onMove(perform: moveCategories)
             }
@@ -97,17 +98,20 @@ struct CategorySidebar: View {
     private func contextMenu(for category: Category) -> some View {
         Button("Edit…") { editingCategory = category }
         Menu("Theme") {
+            // Real colored dots (drawn NSImages) — SF Symbols render monochrome in menus.
             ForEach(CategoryTheme.allCases) { theme in
                 Button {
                     category.theme = theme
                     try? context.save()
                 } label: {
-                    Label(theme.label, systemImage: category.theme == theme ? "checkmark.circle.fill" : "circle.fill")
+                    Label {
+                        Text(category.theme == theme ? "\(theme.label) ✓" : theme.label)
+                    } icon: {
+                        Image(nsImage: theme.swatch)
+                    }
                 }
             }
         }
-        Button("Move Up") { reorder(category, by: -1) }
-        Button("Move Down") { reorder(category, by: 1) }
         Divider()
         Button(role: .destructive) {
             if current == .category(category) { onSelect(.all) }

@@ -20,7 +20,7 @@ struct RichTextEditor: NSViewRepresentable {
         scrollView.borderType = .noBorder
         scrollView.drawsBackground = false
 
-        let textView = NSTextView()
+        let textView = DeckTextView()
         textView.delegate = context.coordinator
         textView.isRichText = true
         textView.importsGraphics = true
@@ -61,9 +61,12 @@ struct RichTextEditor: NSViewRepresentable {
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.smartInsertDeleteEnabled = true
 
-        // Load existing content.
+        // Load existing content, then strip baked-in text colors so it always
+        // renders in the dynamic label color (fixes black-on-dark from old notes).
         let attributed = AttributedContent.attributedString(from: data)
         textView.textStorage?.setAttributedString(attributed)
+        DeckTextView.makeReadable(textView.textStorage,
+                                  in: NSRange(location: 0, length: textView.textStorage?.length ?? 0))
 
         context.coordinator.textView = textView
         controller?.textView = textView
@@ -128,5 +131,31 @@ struct RichTextEditor: NSViewRepresentable {
                 tv.layoutManager?.invalidateDisplay(forCharacterRange: NSRange(location: 0, length: storage.length))
             }
         }
+    }
+}
+
+/// NSTextView that keeps pasted content readable: it strips baked-in text colors
+/// (e.g. black text copied from Apple Notes) so everything renders in the dynamic
+/// label color, which adapts to light/dark. ⌃⇧V (Paste and Match Style) is handled
+/// by the inherited `pasteAsPlainText(_:)`.
+final class DeckTextView: NSTextView {
+    override func paste(_ sender: Any?) {
+        let start = selectedRange().location
+        super.paste(sender)
+        let end = selectedRange().location
+        if end > start {
+            Self.makeReadable(textStorage, in: NSRange(location: start, length: end - start))
+            didChangeText()
+        }
+    }
+
+    /// Removes foreground/background colors so text uses the view's (dynamic) label color.
+    static func makeReadable(_ storage: NSTextStorage?, in range: NSRange) {
+        guard let storage, range.length > 0,
+              range.location >= 0, range.location + range.length <= storage.length else { return }
+        storage.beginEditing()
+        storage.removeAttribute(.foregroundColor, range: range)
+        storage.removeAttribute(.backgroundColor, range: range)
+        storage.endEditing()
     }
 }

@@ -26,15 +26,7 @@ struct NoteEditorView: View {
             .softScrollEdges()
         }
         .background(.clear)
-        .onChange(of: note.contentRTFD) { _, newValue in
-            // Auto-title from the first line (like Apple Notes) while the title is
-            // blank — makes pasting an old note in title itself with no extra step.
-            if note.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                let line = AttributedContent.firstLine(from: newValue)
-                if !line.isEmpty { note.title = line }
-            }
-            save()
-        }
+        .onChange(of: note.contentRTFD) { _, _ in save() }
     }
 
     private var header: some View {

@@ -59,6 +59,5 @@ struct NoteRow: View {
                     .padding(.vertical, 6)
             }
         }
-        .animation(.snappy(duration: 0.18), value: isSelected)
     }
 }

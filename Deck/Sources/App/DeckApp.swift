@@ -1,3 +1,4 @@
+import AppKit
 import SwiftData
 import SwiftUI
 
@@ -42,6 +43,12 @@ struct DeckApp: App {
             }
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesCommand()
+            }
+            CommandGroup(after: .pasteboard) {
+                Button("Paste and Match Style") {
+                    NSApp.sendAction(#selector(NSTextView.pasteAsPlainText(_:)), to: nil, from: nil)
+                }
+                .keyboardShortcut("v", modifiers: [.control, .shift])
             }
         }
 

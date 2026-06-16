@@ -7,8 +7,10 @@ struct SettingsView: View {
                 .tabItem { Label("General", systemImage: "gearshape") }
             UpdatesSettingsView()
                 .tabItem { Label("Updates", systemImage: "arrow.down.circle") }
+            ChangelogView()
+                .tabItem { Label("What's New", systemImage: "sparkles") }
         }
-        .frame(width: 480, height: 300)
+        .frame(width: 480, height: 340)
     }
 }
 

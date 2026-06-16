@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Per-category glass theme. The color is used three ways, in increasing intensity:
@@ -31,6 +32,36 @@ enum CategoryTheme: String, CaseIterable, Identifiable {
 
     /// Legibility-safe tint for a glass surface that sits behind text.
     var glassTint: Color { color.opacity(0.16) }
+
+    /// AppKit color (same values) for drawing menu swatches.
+    var nsColor: NSColor {
+        switch self {
+        case .blue:     return NSColor(srgbRed: 0.20, green: 0.52, blue: 0.96, alpha: 1)
+        case .cyan:     return NSColor(srgbRed: 0.20, green: 0.74, blue: 0.90, alpha: 1)
+        case .teal:     return NSColor(srgbRed: 0.10, green: 0.65, blue: 0.62, alpha: 1)
+        case .mint:     return NSColor(srgbRed: 0.24, green: 0.80, blue: 0.62, alpha: 1)
+        case .green:    return NSColor(srgbRed: 0.20, green: 0.70, blue: 0.42, alpha: 1)
+        case .yellow:   return NSColor(srgbRed: 0.92, green: 0.76, blue: 0.22, alpha: 1)
+        case .orange:   return NSColor(srgbRed: 0.96, green: 0.58, blue: 0.18, alpha: 1)
+        case .red:      return NSColor(srgbRed: 0.94, green: 0.27, blue: 0.30, alpha: 1)
+        case .pink:     return NSColor(srgbRed: 0.96, green: 0.36, blue: 0.62, alpha: 1)
+        case .purple:   return NSColor(srgbRed: 0.58, green: 0.40, blue: 0.92, alpha: 1)
+        case .indigo:   return NSColor(srgbRed: 0.36, green: 0.34, blue: 0.84, alpha: 1)
+        case .brown:    return NSColor(srgbRed: 0.60, green: 0.46, blue: 0.32, alpha: 1)
+        case .graphite: return NSColor(srgbRed: 0.45, green: 0.48, blue: 0.55, alpha: 1)
+        }
+    }
+
+    /// A filled color dot for menus (SF Symbols render monochrome in menus).
+    var swatch: NSImage {
+        let img = NSImage(size: NSSize(width: 12, height: 12), flipped: false) { rect in
+            self.nsColor.setFill()
+            NSBezierPath(ovalIn: rect.insetBy(dx: 0.5, dy: 0.5)).fill()
+            return true
+        }
+        img.isTemplate = false
+        return img
+    }
 }
 
 extension View {

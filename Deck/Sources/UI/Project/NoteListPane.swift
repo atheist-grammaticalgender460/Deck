@@ -109,10 +109,12 @@ struct NoteListPane: View {
                         .contextMenu { NoteContextMenu(note: note, categories: categories) {
                             if selectedNote == note { selectedNote = nil }
                         } }
+                        .transition(.opacity)
                 }
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
+            .animation(.easeOut(duration: 0.2), value: visibleNotes.count)
         }
         .scrollContentBackground(.hidden)
         .scrollEdgeEffectStyle(.soft, for: .all)
