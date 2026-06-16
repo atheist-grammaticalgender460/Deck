@@ -85,6 +85,7 @@ struct NoteEditorView: View {
                 .background(on ? type.tint.opacity(0.22) : Color.clear, in: Capsule())
                 .overlay(Capsule().strokeBorder(on ? type.tint.opacity(0.7) : .secondary.opacity(0.35)))
                 .foregroundStyle(on ? type.tint : .secondary)
+                .contentShape(Capsule()) // make the whole pill clickable, not just the text
         }
         .buttonStyle(.plain)
         .fixedSize()

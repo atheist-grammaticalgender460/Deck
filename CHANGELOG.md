@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.1
+- The Bug and Feature pills are now fully clickable — anywhere on the pill toggles it, not just the text.
+
 ## 1.1.0
 - Fixed the lag when a note contains a picture: the editor no longer re-encodes and re-saves the whole note (images included) on every keystroke. Saving is now debounced, so typing stays smooth and the image is encoded only when you pause or leave the note.
 - Notes are now ordered newest-created first by default, so editing an old note no longer jumps it to the top. You can switch back to "Recently edited first" in Settings → General → Notes.
