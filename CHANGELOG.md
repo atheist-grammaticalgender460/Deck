@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.3
+- Paste is now always clean: every paste strips incoming colors and formatting and uses the editor's own readable style (like Paste and Match Style), so text from Apple Notes is never black or unreadable. Inline images are still kept.
+- Fixed the bug where, after pasting, new typing stayed black even after deleting everything — the typing style is now reset after each paste.
+- Existing notes with baked-in black text now render in the readable label color too.
+
 ## 1.0.2
 - Note title is now a dedicated, freely-editable field (it no longer auto-fills from the first line).
 - Pasting from Apple Notes stays readable — text no longer turns black on the dark editor.

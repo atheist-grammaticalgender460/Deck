@@ -134,27 +134,70 @@ struct RichTextEditor: NSViewRepresentable {
     }
 }
 
-/// NSTextView that keeps pasted content readable: it strips baked-in text colors
-/// (e.g. black text copied from Apple Notes) so everything renders in the dynamic
-/// label color, which adapts to light/dark. ⌃⇧V (Paste and Match Style) is handled
-/// by the inherited `pasteAsPlainText(_:)`.
+/// NSTextView that always pastes clean, readable text.
+///
+/// By design, *every* paste behaves like "Paste and Match Style": incoming
+/// fonts and colors are dropped and the text adopts the editor's own plain
+/// style (dynamic label color, default font), so text copied from Apple Notes,
+/// the web, etc. is never black-on-dark and never carries weird formatting.
+/// Inline images are preserved. After each paste the typing style is reset, so
+/// new typing — including after you delete everything — is always readable.
 final class DeckTextView: NSTextView {
     override func paste(_ sender: Any?) {
         let start = selectedRange().location
         super.paste(sender)
         let end = selectedRange().location
         if end > start {
-            Self.makeReadable(textStorage, in: NSRange(location: start, length: end - start))
+            normalizeToPlain(in: NSRange(location: start, length: end - start))
             didChangeText()
         }
+        typingAttributes = defaultTypingAttributes()
     }
 
-    /// Removes foreground/background colors so text uses the view's (dynamic) label color.
+    override func pasteAsPlainText(_ sender: Any?) {
+        // Insert with the clean style and keep typing clean afterwards.
+        typingAttributes = defaultTypingAttributes()
+        super.pasteAsPlainText(sender)
+        typingAttributes = defaultTypingAttributes()
+    }
+
+    /// The editor's own plain style: default font, dynamic label color, default paragraph.
+    func defaultTypingAttributes() -> [NSAttributedString.Key: Any] {
+        let paragraph = (defaultParagraphStyle?.mutableCopy() as? NSMutableParagraphStyle) ?? {
+            let p = NSMutableParagraphStyle(); p.lineSpacing = 4; return p
+        }()
+        return [
+            .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize + 1),
+            .foregroundColor: NSColor.labelColor,
+            .paragraphStyle: paragraph,
+        ]
+    }
+
+    /// Replaces all text styling in `range` with the editor's plain style while
+    /// keeping any inline image attachments intact.
+    func normalizeToPlain(in range: NSRange) {
+        guard let storage = textStorage, range.length > 0,
+              range.location >= 0, range.location + range.length <= storage.length else { return }
+        let defaults = defaultTypingAttributes()
+        storage.beginEditing()
+        storage.enumerateAttributes(in: range, options: []) { attrs, subRange, _ in
+            if attrs[.attachment] is NSTextAttachment {
+                storage.removeAttribute(.backgroundColor, range: subRange) // keep the image, drop stray highlight
+            } else {
+                storage.setAttributes(defaults, range: subRange)
+            }
+        }
+        storage.endEditing()
+    }
+
+    /// Forces existing content to render in the dynamic label color (white on dark,
+    /// black on light) so old notes with baked-in black text stay readable. NSTextView
+    /// draws a run with *no* foreground color as pure black, so we set it explicitly.
     static func makeReadable(_ storage: NSTextStorage?, in range: NSRange) {
         guard let storage, range.length > 0,
               range.location >= 0, range.location + range.length <= storage.length else { return }
         storage.beginEditing()
-        storage.removeAttribute(.foregroundColor, range: range)
+        storage.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
         storage.removeAttribute(.backgroundColor, range: range)
         storage.endEditing()
     }
