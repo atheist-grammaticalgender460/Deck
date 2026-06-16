@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2
+- Fixed the double flicker when dragging a note to Done or Delete — the drop now animates once, smoothly.
+
 ## 1.1.1
 - The Bug and Feature pills are now fully clickable — anywhere on the pill toggles it, not just the text.
 

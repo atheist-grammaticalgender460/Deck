@@ -135,7 +135,9 @@ final class DragController: ObservableObject {
     func commit(context: ModelContext) -> (DropKind, Note)? {
         let kind = currentKind()
         let note = draggedNote
-        withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) { clear() }
+        // Don't wrap this in withAnimation: RootView already animates on
+        // `drag.isActive`, and animating it here too makes the drop flicker twice.
+        clear()
         guard let note, let kind else { return nil }
         switch kind {
         case .markDone: note.setStatus(.done)
