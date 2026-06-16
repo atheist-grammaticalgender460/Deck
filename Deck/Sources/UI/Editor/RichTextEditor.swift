@@ -55,10 +55,15 @@ struct RichTextEditor: NSViewRepresentable {
             .foregroundColor: NSColor.labelColor,
             .paragraphStyle: paragraph,
         ]
-        textView.isContinuousSpellCheckingEnabled = true
-        textView.isGrammarCheckingEnabled = true
+        // No autocorrect / spell-grammar squiggles / smart substitutions — notes
+        // mix French and English, so leave the text exactly as typed.
+        textView.isContinuousSpellCheckingEnabled = false
+        textView.isGrammarCheckingEnabled = false
         textView.isAutomaticSpellingCorrectionEnabled = false
+        textView.isAutomaticTextReplacementEnabled = false
         textView.isAutomaticQuoteSubstitutionEnabled = false
+        textView.isAutomaticDashSubstitutionEnabled = false
+        textView.isAutomaticDataDetectionEnabled = false
         textView.smartInsertDeleteEnabled = true
 
         // Load existing content, then strip baked-in text colors so it always

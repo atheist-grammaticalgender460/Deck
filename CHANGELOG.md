@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.11
+- Turned off autocorrect, spelling/grammar squiggles, and smart quote/dash substitutions in the editor, so mixed French/English notes are left exactly as typed.
+
 ## 1.0.10
 - Note previews no longer show the bullet marker or the big gap after it — list notes preview as clean text.
 
