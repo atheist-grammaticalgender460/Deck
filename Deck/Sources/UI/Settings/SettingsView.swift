@@ -20,11 +20,22 @@ private var appVersion: String {
 
 struct GeneralSettingsView: View {
     @State private var backupCount = DataStore.backupCount
+    @AppStorage("sortNotesByCreated") private var sortByCreated = true
 
     var body: some View {
         Form {
             LabeledContent("App", value: "Deck")
             LabeledContent("Version", value: appVersion)
+
+            Section("Notes") {
+                Picker("Order notes by", selection: $sortByCreated) {
+                    Text("Newest created first").tag(true)
+                    Text("Recently edited first").tag(false)
+                }
+                Text("Editing a note won't move it to the top when sorting by creation date.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
 
             Section("Data") {
                 LabeledContent("Backups", value: "\(backupCount) kept")

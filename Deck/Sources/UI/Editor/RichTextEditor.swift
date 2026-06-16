@@ -88,16 +88,46 @@ struct RichTextEditor: NSViewRepresentable {
         // Selection changes rebuild the view (via .id), so nothing to sync here.
     }
 
+    /// Flush any pending edit when the editor is torn down (e.g. switching notes),
+    /// so the last keystrokes before the debounce window aren't lost.
+    static func dismantleNSView(_ nsView: NSScrollView, coordinator: Coordinator) {
+        coordinator.commit()
+    }
+
     final class Coordinator: NSObject, NSTextViewDelegate {
         private let parent: RichTextEditor
         weak var textView: NSTextView?
+
+        /// Serializing RTFD re-encodes every embedded image, so doing it on each
+        /// keystroke makes notes with pictures lag badly. Debounce it: keep typing
+        /// instant and only encode/save when the user pauses.
+        private var saveWorkItem: DispatchWorkItem?
+        private let saveDelay: TimeInterval = 0.45
 
         init(_ parent: RichTextEditor) { self.parent = parent }
 
         func textDidChange(_ notification: Notification) {
             fitImages()
-            guard let textStorage = textView?.textStorage else { return }
-            parent.data = AttributedContent.data(from: textStorage)
+            scheduleCommit()
+        }
+
+        /// Commit immediately when focus leaves the editor.
+        func textDidEndEditing(_ notification: Notification) { commit() }
+
+        private func scheduleCommit() {
+            saveWorkItem?.cancel()
+            let work = DispatchWorkItem { [weak self] in self?.commit() }
+            saveWorkItem = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + saveDelay, execute: work)
+        }
+
+        /// Serialize the current content to RTFD and push it to the model (which
+        /// triggers the SwiftData save). Safe to call repeatedly.
+        func commit() {
+            saveWorkItem?.cancel()
+            saveWorkItem = nil
+            guard let storage = textView?.textStorage else { return }
+            parent.data = AttributedContent.data(from: storage)
         }
 
         /// Scales oversized inline images (pasted from Apple Notes, screenshots,

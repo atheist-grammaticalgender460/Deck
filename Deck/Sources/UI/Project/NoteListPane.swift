@@ -14,6 +14,8 @@ struct NoteListPane: View {
     @Query(sort: \Category.sortOrder) private var categories: [Category]
     @State private var showDone = false
     @State private var typeFilter: NoteTypeFilter = .all
+    /// Default: newest *created* note on top (not last-edited). Toggle in Settings.
+    @AppStorage("sortNotesByCreated") private var sortByCreated = true
 
     private var theme: CategoryTheme { project.category?.theme ?? .blue }
 
@@ -142,7 +144,9 @@ struct NoteListPane: View {
             .filter { typeFilter.matches($0) }
             .sorted { lhs, rhs in
                 if lhs.status != rhs.status { return lhs.status == .pending }
-                return lhs.updatedAt > rhs.updatedAt
+                let l = sortByCreated ? lhs.createdAt : lhs.updatedAt
+                let r = sortByCreated ? rhs.createdAt : rhs.updatedAt
+                return l > r
             }
     }
 

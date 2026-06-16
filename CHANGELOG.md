@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+- Fixed the lag when a note contains a picture: the editor no longer re-encodes and re-saves the whole note (images included) on every keystroke. Saving is now debounced, so typing stays smooth and the image is encoded only when you pause or leave the note.
+- Notes are now ordered newest-created first by default, so editing an old note no longer jumps it to the top. You can switch back to "Recently edited first" in Settings → General → Notes.
+
 ## 1.0.11
 - Turned off autocorrect, spelling/grammar squiggles, and smart quote/dash substitutions in the editor, so mixed French/English notes are left exactly as typed.
 
