@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.10
+- Note previews no longer show the bullet marker or the big gap after it — list notes preview as clean text.
+
 ## 1.0.9
 - Settings now show just the version number (e.g. 1.0.9), without the internal build number in parentheses.
 

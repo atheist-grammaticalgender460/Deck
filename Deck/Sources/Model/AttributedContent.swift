@@ -32,11 +32,18 @@ enum AttributedContent {
         return line.count > limit ? String(line.prefix(limit)) + "…" : line
     }
 
-    /// First non-empty line, untruncated — used to auto-title a pasted note.
+    /// First non-empty line, untruncated. Leading bullet markers are dropped and
+    /// tabs flattened to spaces so list notes preview as clean text (no big gap
+    /// after the bullet).
     static func firstLine(from data: Data?) -> String {
         let plain = attributedString(from: data).string
         for raw in plain.split(whereSeparator: \.isNewline) {
-            let line = raw.trimmingCharacters(in: .whitespaces)
+            var line = raw.replacingOccurrences(of: "\t", with: " ")
+                .trimmingCharacters(in: .whitespaces)
+            while let first = line.first, "•◦▪‣·".contains(first) {
+                line.removeFirst()
+                line = line.trimmingCharacters(in: .whitespaces)
+            }
             if !line.isEmpty { return line }
         }
         return ""
