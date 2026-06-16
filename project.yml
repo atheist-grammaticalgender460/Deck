@@ -1,0 +1,57 @@
+name: Deck
+options:
+  bundleIdPrefix: com.hatim
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+packages:
+  # In-app manual updates: signed appcast hosted on GitHub Releases.
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: YES
+    DEAD_CODE_STRIPPING: YES
+    ARCHS: "$(ARCHS_STANDARD)"
+
+targets:
+  Deck:
+    type: application
+    platform: macOS
+    sources:
+      - path: Deck/Sources
+      - path: Deck/Resources
+    dependencies:
+      - package: Sparkle
+    settings:
+      base:
+        PRODUCT_NAME: Deck
+        PRODUCT_BUNDLE_IDENTIFIER: com.hatim.deck
+        INFOPLIST_FILE: Deck/Resources/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ENABLE_APP_SANDBOX: NO
+        COMBINE_HIDPI_IMAGES: YES
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+
+  DeckTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Deck/Tests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hatim.deck.tests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Deck

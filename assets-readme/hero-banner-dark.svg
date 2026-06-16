@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420">
+  <defs>
+    <pattern id="gridd" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#F5EFE4" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="420" fill="#1A1A1A"/>
+  <rect width="1280" height="420" fill="url(#gridd)"/>
+  <rect width="1280" height="30" fill="#CCFF00"/>
+  <text x="40" y="20" font-family="'JetBrains Mono','SF Mono',Menlo,monospace" font-size="13" letter-spacing="4" fill="#1A1A1A">NATIVE macOS · SWIFTUI · LIQUID GLASS · LOCAL-ONLY · OPEN SOURCE</text>
+
+  <g transform="translate(1092,70)">
+    <rect width="148" height="148" rx="16" fill="#CCFF00"/>
+    <text x="74" y="50" text-anchor="middle" font-family="'JetBrains Mono','SF Mono',Menlo,monospace" font-size="18" font-weight="700" fill="#1A1A1A">FREE &amp;</text>
+    <text x="74" y="80" text-anchor="middle" font-family="'JetBrains Mono','SF Mono',Menlo,monospace" font-size="18" font-weight="700" fill="#1A1A1A">OPEN</text>
+    <text x="74" y="110" text-anchor="middle" font-family="'JetBrains Mono','SF Mono',Menlo,monospace" font-size="18" font-weight="700" fill="#1A1A1A">SOURCE</text>
+  </g>
+
+  <text x="36" y="262" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="156" font-weight="900" fill="#F5EFE4">DECK</text>
+  <circle cx="430" cy="250" r="18" fill="#CCFF00"/>
+
+  <text x="42" y="318" font-family="'JetBrains Mono','SF Mono',Menlo,monospace" font-size="22" fill="#F5EFE4">Every bug, every feature — one local board.</text>
+
+  <text x="40" y="400" font-family="'JetBrains Mono','SF Mono',Menlo,monospace" font-size="13" letter-spacing="2" fill="#F5EFE4" fill-opacity="0.55">NATIVE macOS APP · v1.0 · 2026 · HATIM EL HASSAK</text>
+</svg>

@@ -1,0 +1,17 @@
+# Xcode / build
+/Deck.xcodeproj/
+/build/
+/dist/
+DerivedData/
+*.xcuserstate
+.swiftpm/
+
+# Release signing tools + PRIVATE update-signing key — never commit
+/.sparkle-tools/
+
+# Local data / artifacts
+*.store
+*.store-shm
+*.store-wal
+*.profraw
+.DS_Store
