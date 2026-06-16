@@ -8,8 +8,6 @@ import UniformTypeIdentifiers
 final class RichTextController: ObservableObject {
     weak var textView: NSTextView?
 
-    private static let bulletPrefix = "•\t"
-
     // MARK: Inline traits
 
     func toggleBold() { toggleTrait(.boldFontMask) }
@@ -45,39 +43,12 @@ final class RichTextController: ObservableObject {
         tv.didChangeText()
     }
 
-    // MARK: Bulleted list (toggle on the selected paragraphs)
+    // MARK: Bulleted list
 
+    /// Toggles a tiered bullet on the current paragraph (Tab nests, Shift+Tab
+    /// outdents). The list behavior lives in `DeckTextView`.
     func toggleBullets() {
-        guard let tv = textView, let storage = tv.textStorage else { return }
-        let full = storage.string as NSString
-        let paraRange = full.paragraphRange(for: tv.selectedRange())
-        let block = full.substring(with: paraRange)
-        var lines = block.components(separatedBy: "\n")
-
-        let nonEmpty = lines.filter { !$0.isEmpty }
-        let allBulleted = !nonEmpty.isEmpty && nonEmpty.allSatisfy { $0.hasPrefix(Self.bulletPrefix) }
-
-        lines = lines.map { line in
-            guard !line.isEmpty else { return line }
-            if allBulleted {
-                return line.hasPrefix(Self.bulletPrefix) ? String(line.dropFirst(Self.bulletPrefix.count)) : line
-            } else {
-                return line.hasPrefix(Self.bulletPrefix) ? line : Self.bulletPrefix + line
-            }
-        }
-        let newBlock = lines.joined(separator: "\n")
-
-        guard tv.shouldChangeText(in: paraRange, replacementString: newBlock) else { return }
-        var attrs = tv.typingAttributes
-        let style = NSMutableParagraphStyle()
-        if !allBulleted {
-            style.headIndent = 18
-            style.defaultTabInterval = 18
-            style.tabStops = [NSTextTab(textAlignment: .left, location: 18)]
-        }
-        attrs[.paragraphStyle] = style
-        storage.replaceCharacters(in: paraRange, with: NSAttributedString(string: newBlock, attributes: attrs))
-        tv.didChangeText()
+        (textView as? DeckTextView)?.toggleBulletList()
     }
 
     // MARK: Image insertion

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.5
+- Type "- " (dash + space) at the start of a line to begin a bullet list, just like Apple Notes.
+- Bullet lists now support tiers — press Tab to nest a bullet deeper and Shift+Tab to move it back out.
+- Return continues the list; pressing Return on an empty bullet outdents it, then leaves the list.
+
 ## 1.0.4
 - Pasted text now actually shrinks to the editor's normal body size — big headings and large fonts copied from Apple Notes no longer come in oversized. (The previous clean-paste fix wasn't being applied to the pasted range.)
 

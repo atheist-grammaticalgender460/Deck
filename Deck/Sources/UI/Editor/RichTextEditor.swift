@@ -206,4 +206,170 @@ final class DeckTextView: NSTextView {
         storage.removeAttribute(.backgroundColor, range: range)
         storage.endEditing()
     }
+
+    // MARK: - Tiered bullet lists
+    //
+    // A bullet paragraph is marked by a leading "•\t" and an indent that grows
+    // with its tier. Type "- " to start a list, Tab to nest deeper, Shift+Tab to
+    // outdent, Return to continue (empty bullet outdents, then leaves the list).
+
+    static let bulletMarker = "•\t"
+    static let indentStep: CGFloat = 24
+    static let markerIndent: CGFloat = 18
+
+    /// Paragraph style for a bullet at `tier` (0 = top level), hanging-indented so
+    /// wrapped lines align after the marker.
+    static func bulletParagraphStyle(tier: Int, base: NSParagraphStyle?) -> NSMutableParagraphStyle {
+        let p = (base?.mutableCopy() as? NSMutableParagraphStyle) ?? {
+            let s = NSMutableParagraphStyle(); s.lineSpacing = 4; return s
+        }()
+        let lead = CGFloat(max(0, tier)) * indentStep
+        p.firstLineHeadIndent = lead
+        p.headIndent = lead + markerIndent
+        p.defaultTabInterval = markerIndent
+        p.tabStops = [NSTextTab(textAlignment: .left, location: lead + markerIndent)]
+        return p
+    }
+
+    private func plainParagraphStyle() -> NSMutableParagraphStyle {
+        (defaultParagraphStyle?.mutableCopy() as? NSMutableParagraphStyle) ?? {
+            let s = NSMutableParagraphStyle(); s.lineSpacing = 4; return s
+        }()
+    }
+
+    private func currentParagraphRange() -> NSRange {
+        (string as NSString).paragraphRange(for: selectedRange())
+    }
+
+    private func isBulletParagraph(_ range: NSRange) -> Bool {
+        (string as NSString).substring(with: range).hasPrefix(Self.bulletMarker)
+    }
+
+    private func tier(of range: NSRange) -> Int {
+        guard let storage = textStorage, range.location < storage.length,
+              let style = storage.attribute(.paragraphStyle, at: range.location,
+                                            effectiveRange: nil) as? NSParagraphStyle
+        else { return 0 }
+        return max(0, Int((style.firstLineHeadIndent / Self.indentStep).rounded()))
+    }
+
+    /// Turn the selected paragraphs into a tier-0 list, or remove the list if they
+    /// already are one. Backs the toolbar's bullet button.
+    func toggleBulletList() {
+        guard let storage = textStorage else { return }
+        let para = currentParagraphRange()
+        if isBulletParagraph(para) {
+            removeBullet(in: para)
+        } else {
+            let marker = Self.bulletMarker as NSString
+            guard shouldChangeText(in: NSRange(location: para.location, length: 0),
+                                   replacementString: Self.bulletMarker) else { return }
+            var attrs = typingAttributes
+            let style = Self.bulletParagraphStyle(tier: 0, base: defaultParagraphStyle)
+            attrs[.paragraphStyle] = style
+            storage.insert(NSAttributedString(string: Self.bulletMarker, attributes: attrs),
+                           at: para.location)
+            let newPara = (string as NSString).paragraphRange(for: NSRange(location: para.location, length: 0))
+            storage.addAttribute(.paragraphStyle, value: style, range: newPara)
+            setSelectedRange(NSRange(location: para.location + marker.length, length: 0))
+            typingAttributes[.paragraphStyle] = style
+            didChangeText()
+        }
+    }
+
+    override func insertText(_ insertString: Any, replacementRange: NSRange) {
+        if let s = insertString as? String, s == " ", convertDashToBulletIfNeeded() { return }
+        super.insertText(insertString, replacementRange: replacementRange)
+    }
+
+    override func insertTab(_ sender: Any?) {
+        if adjustBulletTier(by: 1) { return }
+        super.insertTab(sender)
+    }
+
+    override func insertBacktab(_ sender: Any?) {
+        if adjustBulletTier(by: -1) { return }
+        super.insertBacktab(sender)
+    }
+
+    override func insertNewline(_ sender: Any?) {
+        guard let storage = textStorage else { super.insertNewline(sender); return }
+        let para = currentParagraphRange()
+        guard isBulletParagraph(para) else { super.insertNewline(sender); return }
+
+        let markerLen = (Self.bulletMarker as NSString).length
+        let text = (string as NSString).substring(with: para)
+        let trimmed = text.hasSuffix("\n") ? String(text.dropLast()) : text
+        if (trimmed as NSString).length <= markerLen {
+            // Empty bullet: outdent one tier, or leave the list at tier 0.
+            if tier(of: para) > 0 { adjustBulletTier(by: -1) } else { removeBullet(in: para) }
+            return
+        }
+
+        let style = Self.bulletParagraphStyle(tier: tier(of: para), base: defaultParagraphStyle)
+        var attrs = typingAttributes
+        attrs[.paragraphStyle] = style
+        let sel = selectedRange()
+        let insertString = "\n" + Self.bulletMarker
+        guard shouldChangeText(in: sel, replacementString: insertString) else { return }
+        storage.replaceCharacters(in: sel, with: NSAttributedString(string: insertString, attributes: attrs))
+        typingAttributes[.paragraphStyle] = style
+        didChangeText()
+    }
+
+    /// If the caret follows a lone "-" at the start of a line, replace it with a
+    /// bullet and consume the triggering space. Returns true if it handled it.
+    private func convertDashToBulletIfNeeded() -> Bool {
+        guard let storage = textStorage else { return false }
+        let sel = selectedRange()
+        guard sel.length == 0 else { return false }
+        let ns = storage.string as NSString
+        let para = ns.paragraphRange(for: sel)
+        let prefix = ns.substring(with: NSRange(location: para.location, length: sel.location - para.location))
+        guard prefix == "-" else { return false }
+
+        let marker = Self.bulletMarker as NSString
+        let dashRange = NSRange(location: para.location, length: 1)
+        guard shouldChangeText(in: dashRange, replacementString: Self.bulletMarker) else { return false }
+        let style = Self.bulletParagraphStyle(tier: 0, base: defaultParagraphStyle)
+        var attrs = typingAttributes
+        attrs[.paragraphStyle] = style
+        storage.replaceCharacters(in: dashRange, with: NSAttributedString(string: Self.bulletMarker, attributes: attrs))
+        let newPara = (storage.string as NSString).paragraphRange(for: NSRange(location: para.location, length: 0))
+        storage.addAttribute(.paragraphStyle, value: style, range: newPara)
+        setSelectedRange(NSRange(location: para.location + marker.length, length: 0))
+        typingAttributes[.paragraphStyle] = style
+        didChangeText()
+        return true
+    }
+
+    /// Indent/outdent the current bullet paragraph by `delta` tiers. Outdenting past
+    /// tier 0 removes the bullet. Returns false if the caret isn't in a bullet.
+    @discardableResult
+    private func adjustBulletTier(by delta: Int) -> Bool {
+        guard let storage = textStorage else { return false }
+        let para = currentParagraphRange()
+        guard isBulletParagraph(para) else { return false }
+        let newTier = tier(of: para) + delta
+        if newTier < 0 { removeBullet(in: para); return true }
+        let style = Self.bulletParagraphStyle(tier: min(newTier, 8), base: defaultParagraphStyle)
+        guard shouldChangeText(in: para, replacementString: nil) else { return true }
+        storage.addAttribute(.paragraphStyle, value: style, range: para)
+        typingAttributes[.paragraphStyle] = style
+        didChangeText()
+        return true
+    }
+
+    /// Strip the "•\t" marker and reset the paragraph to the editor's plain style.
+    private func removeBullet(in para: NSRange) {
+        guard let storage = textStorage, isBulletParagraph(para) else { return }
+        let markerRange = NSRange(location: para.location, length: (Self.bulletMarker as NSString).length)
+        guard shouldChangeText(in: markerRange, replacementString: "") else { return }
+        storage.replaceCharacters(in: markerRange, with: "")
+        let style = plainParagraphStyle()
+        let newPara = (string as NSString).paragraphRange(for: NSRange(location: para.location, length: 0))
+        if newPara.length > 0 { storage.addAttribute(.paragraphStyle, value: style, range: newPara) }
+        typingAttributes[.paragraphStyle] = style
+        didChangeText()
+    }
 }
