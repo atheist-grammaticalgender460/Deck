@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.3
+- Actually fixed the drag flicker: the screen-blur during a drag no longer reloads the content (and the editor) twice. The blur is now a backdrop over the content instead of being applied to it, so starting, dropping, or cancelling a drag is smooth.
+
 ## 1.1.2
 - Fixed the double flicker when dragging a note to Done or Delete — the drop now animates once, smoothly.
 

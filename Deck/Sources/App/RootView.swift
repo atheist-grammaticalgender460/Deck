@@ -23,8 +23,12 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
+            // No `.blur` here: blurring the live content tree (which holds the AppKit
+            // text editor) forces a rasterize/reload every time the drag starts AND
+            // ends — the "loads twice" flicker. DragOverlay instead lays a blurring
+            // material backdrop over the content, which looks the same but never
+            // rasterizes or reloads the editor underneath.
             splitView
-                .blur(radius: drag.isActive ? 14 : 0)
             if drag.isActive {
                 DragOverlay()
             }

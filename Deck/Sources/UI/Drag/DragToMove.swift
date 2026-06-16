@@ -166,7 +166,12 @@ struct DragOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.32).ignoresSafeArea()
+            // Blurring material backdrop — blurs the content behind it without
+            // applying `.blur` to the live view tree (which would reload the editor).
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .overlay(Color.black.opacity(0.22))
+                .ignoresSafeArea()
 
             VStack(spacing: 34) {
                 Text(draggedIsDone ? "Reopen, or delete" : "Mark done, or delete")
