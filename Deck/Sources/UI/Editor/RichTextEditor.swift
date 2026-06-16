@@ -30,7 +30,7 @@ struct RichTextEditor: NSViewRepresentable {
         textView.allowsUndo = true
         textView.usesFindBar = true
         textView.textContainerInset = NSSize(width: 16, height: 18)
-        textView.font = .systemFont(ofSize: NSFont.systemFontSize + 1)
+        textView.font = DeckTextView.bodyFont
         textView.textColor = .labelColor
         textView.insertionPointColor = .controlAccentColor
         textView.drawsBackground = false
@@ -143,6 +143,12 @@ struct RichTextEditor: NSViewRepresentable {
 /// Inline images are preserved. After each paste the typing style is reset, so
 /// new typing — including after you delete everything — is always readable.
 final class DeckTextView: NSTextView {
+    /// The one and only body font/size for the editor. Everything — typed, pasted,
+    /// or loaded — is locked to this family and size (bold/italic are kept as traits
+    /// on top of it). Never read the font back from `self.font`, which reflects the
+    /// current text and would let pasted fonts contaminate the "default".
+    static let bodyFont = NSFont.systemFont(ofSize: NSFont.systemFontSize + 1)
+
     override func paste(_ sender: Any?) {
         guard let storage = textStorage else { super.paste(sender); return }
         // Measure what got inserted by the change in document length — after paste,
@@ -172,7 +178,7 @@ final class DeckTextView: NSTextView {
             let p = NSMutableParagraphStyle(); p.lineSpacing = 4; return p
         }()
         return [
-            .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize + 1),
+            .font: DeckTextView.bodyFont,
             .foregroundColor: NSColor.labelColor,
             .paragraphStyle: paragraph,
         ]
@@ -195,13 +201,25 @@ final class DeckTextView: NSTextView {
         storage.endEditing()
     }
 
-    /// Forces existing content to render in the dynamic label color (white on dark,
-    /// black on light) so old notes with baked-in black text stay readable. NSTextView
-    /// draws a run with *no* foreground color as pure black, so we set it explicitly.
+    /// Locks existing content to the editor's one body font and size (keeping any
+    /// bold/italic) and to the dynamic label color, so old notes — including ones
+    /// pasted in a different/monospace/tiny font before — render consistently.
+    /// NSTextView draws a run with *no* foreground color as pure black, so the color
+    /// is set explicitly rather than removed.
     static func makeReadable(_ storage: NSTextStorage?, in range: NSRange) {
         guard let storage, range.length > 0,
               range.location >= 0, range.location + range.length <= storage.length else { return }
+        let fm = NSFontManager.shared
         storage.beginEditing()
+        storage.enumerateAttribute(.font, in: range) { value, sub, _ in
+            // Attachment runs carry no real font; leave them alone.
+            if storage.attribute(.attachment, at: sub.location, effectiveRange: nil) != nil { return }
+            var font = bodyFont
+            let traits = (value as? NSFont).map { fm.traits(of: $0) } ?? []
+            if traits.contains(.boldFontMask) { font = fm.convert(font, toHaveTrait: .boldFontMask) }
+            if traits.contains(.italicFontMask) { font = fm.convert(font, toHaveTrait: .italicFontMask) }
+            storage.addAttribute(.font, value: font, range: sub)
+        }
         storage.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
         storage.removeAttribute(.backgroundColor, range: range)
         storage.endEditing()

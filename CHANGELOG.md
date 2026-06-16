@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.8
+- The editor font and size are now truly locked — pasted text (even tiny or monospace fonts) is always shown in the one body font, and opening older notes corrects them too. Your bold/italic is kept.
+
 ## 1.0.7
 - The number next to each category in the sidebar now shows open (pending) bugs and features instead of the project count — it reads 0 when nothing's open.
 
