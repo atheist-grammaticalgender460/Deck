@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.7
+- The number next to each category in the sidebar now shows open (pending) bugs and features instead of the project count — it reads 0 when nothing's open.
+
 ## 1.0.6
 - Deleting a bullet is now one press: with the cursor in front of the words, Delete removes the whole bullet (outdenting a nested one a tier at a time) instead of first deleting just the indent and then the dot.
 

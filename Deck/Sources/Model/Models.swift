@@ -85,6 +85,12 @@ final class Category {
         self.createdAt = createdAt
         self.projects = []
     }
+
+    /// Open (pending) bugs + features across all of this category's projects —
+    /// the at-a-glance "how much is still on my plate" number shown in the sidebar.
+    var openItemCount: Int {
+        projects.reduce(0) { $0 + $1.pendingCount }
+    }
 }
 
 @Model

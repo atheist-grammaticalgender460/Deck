@@ -39,7 +39,7 @@ struct CategorySidebar: View {
                 ForEach(categories) { category in
                     SidebarRow(title: category.name, systemImage: "folder.fill",
                                iconColor: category.theme.color, accent: category.theme.color,
-                               count: category.projects.count, active: isActive(.category(category)))
+                               count: category.openItemCount, active: isActive(.category(category)))
                         .contentShape(Rectangle())
                         .onTapGesture { onSelect(.category(category)) }
                         .listRowInsets(rowInsets)
